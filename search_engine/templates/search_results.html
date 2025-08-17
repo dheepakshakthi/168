@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}" - 168.se{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Search box -->
+            <form action="{{ url_for('search') }}" method="GET" class="search-box mb-4">
+                <div class="input-group">
+                    <input type="text" 
+                           name="q" 
+                           class="form-control" 
+                           value="{{ query }}" 
+                           placeholder="Search the web..."
+                           autocomplete="off">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Search statistics -->
+            {% if results %}
+            <div class="search-stats">
+                About {{ total_results }} results
+            </div>
+            {% endif %}
+
+            <!-- Search results -->
+            {% if results %}
+                {% for result in results %}
+                <div class="search-result">
+                    <h3>
+                        <a href="{{ result.url }}" 
+                           class="result-title" 
+                           target="_blank" 
+                           rel="noopener noreferrer">
+                            {{ result.title or "Untitled" }}
+                        </a>
+                    </h3>
+                    
+                    <div class="result-url">
+                        <i class="fas fa-link me-1"></i>
+                        {{ result.url }}
+                        {% if result.ranking_score %}
+                        <span class="badge bg-info ms-2">
+                            Score: {{ "%.2f"|format(result.ranking_score) }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="result-snippet">
+                        {% if result.meta_description %}
+                            {{ result.meta_description }}
+                        {% else %}
+                            {{ result.content[:200] }}...
+                        {% endif %}
+                    </div>
+                    
+                    {% if result.score_breakdown %}
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-chart-bar"></i>
+                            Title: {{ "%.1f"|format(result.score_breakdown.title_score) }} |
+                            Content: {{ "%.1f"|format(result.score_breakdown.content_score) }} |
+                            Freshness: {{ "%.1f"|format(result.score_breakdown.freshness_score) }}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                <nav aria-label="Search results pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('search', q=query, page=page-1) }}">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </span>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">{{ page }}</span>
+                        </li>
+
+                        {% if has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('search', q=query, page=page+1) }}">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% else %}
+                <!-- No results -->
+                <div class="text-center mt-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h3>No results found</h3>
+                    <p class="text-muted">
+                        Your search - <strong>{{ query }}</strong> - did not match any documents.
+                    </p>
+                    <div class="mt-4">
+                        <h5>Suggestions:</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Make sure all words are spelled correctly</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Try different keywords</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Try more general keywords</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Try fewer keywords</li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
