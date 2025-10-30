@@ -59,7 +59,37 @@
       "last_run": "2025-08-16T21:34:24.139642",
       "next_run": null,
       "status": "completed"
+    },
+    {
+      "id": 5,
+      "name": "Manual Crawl - https://github.com/",
+      "seed_urls": [
+        "https://github.com/"
+      ],
+      "schedule_type": "manual",
+      "schedule_time": "00:00",
+      "max_pages": 200,
+      "max_depth": 10,
+      "created_at": "2025-10-30T23:49:17.036200",
+      "last_run": "2025-10-30T23:49:17.037178",
+      "next_run": null,
+      "status": "running"
+    },
+    {
+      "id": 6,
+      "name": "Manual Crawl - https://github.com/",
+      "seed_urls": [
+        "https://github.com/"
+      ],
+      "schedule_type": "manual",
+      "schedule_time": "00:00",
+      "max_pages": 50,
+      "max_depth": 2,
+      "created_at": "2025-10-31T00:52:28.987832",
+      "last_run": "2025-10-31T01:02:39.845135",
+      "next_run": null,
+      "status": "completed"
     }
   ],
-  "last_updated": "2025-08-16T22:16:18.021115"
+  "last_updated": "2025-10-31T01:02:39.845135"
 }
