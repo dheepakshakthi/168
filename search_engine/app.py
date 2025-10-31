@@ -2,11 +2,16 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import os
 import sys
 import logging
+import google.generativeai as genai
 
 # Add the search engine to the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from search_engine import SearchEngine
+
+# Configure Gemini API
+GEMINI_API_KEY = "AIzaSyA65OUYYQZPgRPWQHd1RIt9Sclt9gJdWQE"
+genai.configure(api_key=GEMINI_API_KEY)
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
@@ -28,6 +33,32 @@ def index():
                          stats=stats, 
                          popular_queries=popular_queries)
 
+def get_gemini_answer(query, search_results):
+    """Get AI-generated answer from Gemini"""
+    try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Create context from search results
+        context = ""
+        for i, result in enumerate(search_results[:3], 1):
+            snippet = result.get('meta_description') or result.get('content', '')[:300]
+            context += f"\n[Source {i}]: {snippet}\n"
+        
+        # Create prompt
+        prompt = f"""Based on the search query and the following search results, provide a comprehensive and accurate answer to the user's question. Be concise but informative.
+
+Query: {query}
+
+Search Results Context:{context}
+
+Please provide a helpful answer based on the available information. If the search results don't contain relevant information, provide a general answer based on your knowledge and mention that specific sources weren't found."""
+        
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Error getting Gemini answer: {str(e)}")
+        return None
+
 @app.route('/search')
 def search():
     """Handle search requests"""
@@ -47,6 +78,11 @@ def search():
     # Get results for current page
     page_results = results[offset:offset + per_page]
     
+    # Get AI answer from Gemini (only for first page)
+    ai_answer = None
+    if page == 1 and results:
+        ai_answer = get_gemini_answer(query, results)
+    
     # Check if there are more results
     has_next = len(results) > offset + per_page
     has_prev = page > 1
@@ -57,7 +93,8 @@ def search():
                          page=page,
                          has_next=has_next,
                          has_prev=has_prev,
-                         total_results=len(results))
+                         total_results=len(results),
+                         ai_answer=ai_answer)
 
 @app.route('/api/search')
 def api_search():
