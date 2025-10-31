@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from search_engine import SearchEngine
 
 # Configure Gemini API
-GEMINI_API_KEY = "AIzaSyA65OUYYQZPgRPWQHd1RIt9Sclt9gJdWQE"
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 genai.configure(api_key=GEMINI_API_KEY)
 
 app = Flask(__name__)
